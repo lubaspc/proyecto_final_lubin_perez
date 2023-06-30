@@ -26,6 +26,7 @@ class MainViewModel : ViewModel() {
     fun getDogsService() {
         isLoading.value = true
         dogs.clear()
+        dogsBackup.clear()
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val breedsResponse = api.getBreeds()
