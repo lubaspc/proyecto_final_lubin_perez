@@ -10,7 +10,10 @@ import com.example.proyectofinal.database.Breed
 import com.example.proyectofinal.domain.DogRepository
 import com.example.proyectofinal.model.Dog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import okhttp3.internal.concurrent.Task
 
 class MainViewModel : ViewModel() {
     private val api by lazy { DogRepository }
@@ -31,13 +34,13 @@ class MainViewModel : ViewModel() {
             try {
                 val breedsResponse = api.getBreeds()
                 if (breedsResponse.status != "success") throw Exception()
-                breedsResponse.message.forEach {
-                    if (isLoading.value) isLoading.value = false
-                    val imagesResponse = api.getImages(it)
-                    if (imagesResponse.status != "success") throw Exception()
-                    dogs.add(Dog(it, imagesResponse.message))
-                }
-                dogsBackup.addAll(dogs)
+                breedsResponse.message.map {
+                    viewModelScope.async(Dispatchers.IO) {
+                        val imagesResponse = api.getImages(it)
+                        if (imagesResponse.status != "success") throw Exception()
+                        dogs.add(Dog(it, imagesResponse.message).also(dogsBackup::add))
+                    }
+                }.awaitAll()
             } catch (e: Exception) {
                 errorState.postValue(e.message)
                 e.printStackTrace()
@@ -52,7 +55,7 @@ class MainViewModel : ViewModel() {
     fun filterList(sts: String) {
         dogs.clear()
         dogs.addAll(
-            dogsBackup.filter { it.name.contains(sts) }
+            dogsBackup.filter { it.name.contains(sts.lowercase()) }
         )
     }
 

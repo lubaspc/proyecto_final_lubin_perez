@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -67,7 +68,6 @@ fun ScreenMain(navController: NavController, vm: MainViewModel) {
     val swipeRefresh = rememberSwipeRefreshState(rememberIsLoading)
     val (showSearch, setShowSearch) = remember { mutableStateOf(false) }
     val (textSearch, setTextSearch) = remember { mutableStateOf("") }
-
     Scaffold(
         topBar = {
             MyToolbar(
@@ -75,7 +75,7 @@ fun ScreenMain(navController: NavController, vm: MainViewModel) {
                     navController.navigate(Routes.ScreenFavorite)
                     vm.getDBBreeds()
                 }, onClickSearch = {
-                    setShowSearch(!showSearch)
+                    if (!rememberIsLoading) setShowSearch(!showSearch)
                 })
         },
         modifier = Modifier.fillMaxSize(),

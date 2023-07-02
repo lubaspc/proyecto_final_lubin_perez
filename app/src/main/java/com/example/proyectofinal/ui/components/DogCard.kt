@@ -80,7 +80,7 @@ fun DogCard(
 @Composable
 fun DogCardPreview() {
     DogCard(
-        Dog("Pastor Aleman", listOf("https://images.dog.ceo/breeds/akita/Akita_Inu_dog.jpg")),
+        Dog("Pastor Aleman", mutableListOf("https://images.dog.ceo/breeds/akita/Akita_Inu_dog.jpg")),
         Icons.Filled.Favorite
     ) {}
 }
